@@ -7,7 +7,7 @@
 > curl -fsSL https://raw.githubusercontent.com/DUBSOpenHub/groundhog-day/main/install.sh | bash
 > ```
 
-![Groundhog Day](https://media.giphy.com/media/jpQm5h8UAW7gPAB5Wp/giphy.gif)
+![Groundhog Day](https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExN2EzNW5wbnFjOHBiMWlrOWM2b21zMXU2eHYwM2p6cmU0Znl5ZWJyeiZlcD12MV9naWZzX3NlYXJjaCZjdD1n/3o7WIQ4FARJdpmUni8/giphy.gif)
 
 ---
 
