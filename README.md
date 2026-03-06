@@ -65,7 +65,7 @@ That's it. Every skill you create, edit, or delete from this moment forward is a
 
 ![Reporting in](https://media.giphy.com/media/j8sVwJid3NdjG/giphy.gif)
 
-Groundhog Day is a background agent that watches your `~/.copilot/skills/` directory in real time. The moment a file changes, it:
+Groundhog Day is a fully autonomous background agent that watches your `~/.copilot/skills/` directory in real time. Once installed, it requires zero interaction. It starts on boot, restarts if it crashes, and syncs every change without you ever touching it. The moment a file changes, it:
 
 1. **Watches** — detects every create, edit, rename, and delete in real time
 2. **Syncs** — rsyncs your skills to a version-controlled git repo
