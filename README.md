@@ -1,6 +1,6 @@
 # 🐿️ Groundhog Day
 
-**Your laptop will crash. Your skills won't.**
+> Autonomous backup agent for Copilot CLI skills. Your laptop will crash. Your skills won't. Watches, syncs, pushes. Starts on boot, runs forever, zero interaction.
 
 > ⚡ **Install in one line:**
 > ```bash
