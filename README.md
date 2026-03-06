@@ -207,7 +207,7 @@ Found a bug or want to add a feature? PRs welcome. This is a tiny agent with one
 
 ---
 
-🐙 **Built with Love**
+🐙 **Built with Agents**
 Created with 💜 by [@DUBSOpenHub](https://github.com/DUBSOpenHub) with the [GitHub Copilot CLI](https://docs.github.com/copilot/concepts/agents/about-copilot-cli).
 
 Let's build! 🚀✨
