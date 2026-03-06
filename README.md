@@ -23,9 +23,9 @@ Your custom agents. Your workflow automations. The prompts you spent weeks itera
 
 **...gone.** 💀
 
-Groundhog Day is a tiny background agent with one job: make sure that never happens. It watches your skills folder in real time, commits every change, and pushes it to GitHub automatically. You set it up once and never think about it again.
+🐿️ Groundhog Day is a tiny background agent with one job: make sure that never happens. It watches your skills folder in real time, commits every change, and pushes it to GitHub automatically. You set it up once and never think about it again.
 
-**Zero effort. Zero maintenance. Zero risk of losing your work.**
+**🐿️ Zero effort. Zero maintenance. Zero risk of losing your work.**
 
 The installer handles everything: detects your skills, creates a backup repo on your GitHub account, seeds it with your existing skills, and starts the watcher. One command, fully protected.
 
@@ -61,7 +61,7 @@ That's it. Every skill you create, edit, or delete from this moment forward is a
 
 ---
 
-## What It Does
+## 🐿️ What It Does
 
 ![Reporting in](https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOG5tODIwcXBmZ2l3OWxnZ3pkbXQ1aThncXFyampuNm1nYmUwNzVveSZlcD12MV9naWZzX3NlYXJjaCZjdD1n/sqmKjwp2T8iPkOtVcQ/giphy.gif)
 
@@ -75,7 +75,7 @@ Groundhog Day is a fully autonomous background agent that watches your `~/.copil
 
 No cron. No manual steps. No remembering. It just runs.
 
-## What It Catches
+## 🐿️ What It Catches
 
 | Scenario | Without Groundhog Day | With Groundhog Day |
 |----------|----------------------|---------------------|
@@ -87,7 +87,7 @@ No cron. No manual steps. No remembering. It just runs.
 
 ---
 
-## Commands
+## 🐿️ Commands
 
 ```bash
 groundhog              # One-shot sync right now
@@ -95,7 +95,7 @@ groundhog watch        # Start the real-time watcher
 groundhog status       # Health check — is it running? Last sync?
 ```
 
-## How It Works
+## 🐿️ How It Works
 
 ```
 ~/.copilot/skills/          ~/dev/copilot-skills           GitHub
@@ -111,7 +111,7 @@ groundhog status       # Health check — is it running? Last sync?
 - **git** commits and pushes with meaningful messages
 - **macOS LaunchAgent** keeps it alive across reboots
 
-## Built-In Safety
+## 🐿️ Built-In Safety
 
 This isn't a quick script. Groundhog Day was stress-tested by two AI analysis agents before release:
 
@@ -132,7 +132,7 @@ Every finding was fixed. Here's what's built in:
 | 🐍 Injection protection | Shell interpolation in Python calls |
 | 🧲 Event drain | Redundant syncs from batched file events |
 
-## Nightly Checkup
+## 🐿️ Nightly Checkup
 
 Groundhog Day runs an automated health check every morning at 6:00 AM. It checks 9 things:
 
@@ -163,7 +163,7 @@ groundhog checkup
 > **Re-run Agent X-Ray** after modifying the script to catch new security or reliability issues:
 > Open Copilot CLI and say: *"X-ray ~/bin/groundhog for security, reliability, and performance"*
 
-## Restore on a New Machine
+## 🐿️ Restore on a New Machine
 
 Your laptop just died. Here's your 60-second recovery:
 
@@ -175,7 +175,7 @@ cp -R /tmp/skills-restore/*/ ~/.copilot/skills/
 
 All your skills are back. Every single one. Like the crash never happened.
 
-## FAQ
+## 🐿️ FAQ
 
 **Q: Does this work on Linux?**
 A: The script works everywhere. The LaunchAgent plist is macOS-specific. On Linux, use a systemd unit or cron instead.
@@ -201,6 +201,6 @@ Same thing. Every time. It watches. It syncs. It pushes. It never stops. It neve
 
 MIT
 
-## Contributing
+## 🐿️ Contributing
 
 Found a bug or want to add a feature? PRs welcome. This is a tiny agent with one job — keep it simple.
