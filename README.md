@@ -2,17 +2,32 @@
 
 **Your laptop will crash. Your skills won't.**
 
+> ⚡ **Install in one line:**
+> ```bash
+> curl -fsSL https://raw.githubusercontent.com/DUBSOpenHub/groundhog-day/main/install.sh | bash
+> ```
+
 ![Groundhog Day](https://media.giphy.com/media/jpQm5h8UAW7gPAB5Wp/giphy.gif)
 
 ---
 
-> *"I built 12 custom skills over three months. Terminal prompts, workflow automations, things that took real iteration to get right. Then my laptop died. All of it — gone."*
->
-> That's a real story. From this week.
->
-> Copilot CLI skills live in `~/.copilot/skills/`. That's a local directory. No cloud sync. No version history. No backup. One bad day and months of work vanishes.
->
-> **Groundhog Day exists so that never happens to you.**
+Did you know that every [Copilot CLI](https://docs.github.com/copilot/concepts/agents/about-copilot-cli) skill you've ever built lives in one local folder?
+
+```
+~/.copilot/skills/
+```
+
+That's it. No cloud sync. No version history. No backup.
+
+Your custom agents. Your workflow automations. The prompts you spent weeks iterating on to get just right. All sitting in a single directory on a single machine. One spilled coffee, one failed drive, one stolen laptop and it's all...
+
+**...gone.** 💀
+
+Groundhog Day is a tiny background agent with one job: make sure that never happens. It watches your skills folder in real time, commits every change, and pushes it to GitHub automatically. You set it up once and never think about it again.
+
+**Zero effort. Zero maintenance. Zero risk of losing your work.**
+
+> 🐿️ *Same thing. Every time. It watches. It syncs. It pushes. It never stops. It never complains. It wakes up tomorrow and does it all again.*
 
 ---
 
