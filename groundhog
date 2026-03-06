@@ -198,8 +198,10 @@ watch_mode() {
 
 # ── Status ─────────────────────────────────────────────────────────────────
 cmd_status() {
-  if launchctl list 2>/dev/null | grep -q groundhog; then
+  if launchctl list 2>&1 | grep -q "com.dubsopenhub.groundhog"; then
     echo "🐿️  Groundhog Day: ✅ Running"
+  elif pgrep -f "groundhog watch" >/dev/null 2>&1; then
+    echo "🐿️  Groundhog Day: ✅ Running (manual)"
   else
     echo "🐿️  Groundhog Day: ❌ Not running"
   fi
