@@ -25,14 +25,43 @@ chmod +x "$HOME/bin/groundhog"
 SKILLS_REPO="$HOME/dev/copilot-skills"
 if [[ ! -d "$SKILLS_REPO" ]]; then
   echo ""
-  echo "No skills backup repo found at $SKILLS_REPO."
-  echo "Create one on GitHub first, then clone it:"
-  echo ""
-  echo "  gh repo create my-copilot-skills --public"
-  echo "  git clone https://github.com/\$(gh api user -q .login)/my-copilot-skills.git $SKILLS_REPO"
-  echo ""
-  echo "Then re-run this installer."
-  exit 0
+  echo "📦  No skills backup repo found. Creating one for you..."
+
+  # Get GitHub username
+  GH_USER=$(gh api user -q .login 2>/dev/null || true)
+  if [[ -z "$GH_USER" ]]; then
+    echo "❌  You need to be logged in to GitHub CLI."
+    echo "   Run: gh auth login"
+    exit 1
+  fi
+
+  REPO_NAME="copilot-skills"
+
+  # Check if repo already exists on GitHub
+  if gh repo view "$GH_USER/$REPO_NAME" >/dev/null 2>&1; then
+    echo "Found existing repo $GH_USER/$REPO_NAME — cloning..."
+    git clone --quiet "https://github.com/$GH_USER/$REPO_NAME.git" "$SKILLS_REPO"
+  else
+    echo "Creating $GH_USER/$REPO_NAME on GitHub..."
+    gh repo create "$REPO_NAME" --public \
+      --description "🐿️ My Copilot CLI skills — backed up by Groundhog Day" \
+      >/dev/null 2>&1
+    git clone --quiet "https://github.com/$GH_USER/$REPO_NAME.git" "$SKILLS_REPO"
+
+    # Seed it with current skills if any exist
+    if [[ -d "$HOME/.copilot/skills" ]] && [[ -n "$(ls -A "$HOME/.copilot/skills" 2>/dev/null)" ]]; then
+      echo "Seeding with your existing skills..."
+      cp -R "$HOME/.copilot/skills"/*/ "$SKILLS_REPO"/ 2>/dev/null || true
+      cd "$SKILLS_REPO"
+      git add -A
+      if ! git diff --cached --quiet; then
+        git commit -m "🐿️ initial skill backup" --quiet
+        git push --quiet
+        SKILL_COUNT=$(find "$HOME/.copilot/skills" -name 'SKILL.md' | wc -l | tr -d ' ')
+        echo "✅  Backed up $SKILL_COUNT skills to $GH_USER/$REPO_NAME"
+      fi
+    fi
+  fi
 fi
 
 # 4. Install LaunchAgent (macOS only)

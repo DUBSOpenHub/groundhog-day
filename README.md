@@ -27,6 +27,8 @@ Groundhog Day is a tiny background agent with one job: make sure that never happ
 
 **Zero effort. Zero maintenance. Zero risk of losing your work.**
 
+The installer handles everything: detects your skills, creates a backup repo on your GitHub account, seeds it with your existing skills, and starts the watcher. One command, fully protected.
+
 > 🐿️ *Same thing. Every time. It watches. It syncs. It pushes. It never stops. It never complains. It wakes up tomorrow and does it all again.*
 
 ---
