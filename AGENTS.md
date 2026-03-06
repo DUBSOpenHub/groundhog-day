@@ -1,4 +1,4 @@
-# AGENTS.md — Working Guide for AI Agents
+# AGENTS.md: Working Guide for AI Agents
 
 This file tells any AI agent how to work effectively on the Groundhog Day codebase.
 
