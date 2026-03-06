@@ -1,0 +1,220 @@
+#!/bin/bash
+# 🐿️ Groundhog Day — same thing, every time.
+# Auto-syncs ~/.copilot/skills/ → DUBSOpenHub/copilot-skills
+#
+# Modes:
+#   groundhog              — one-shot sync
+#   groundhog watch        — real-time file watcher (runs forever)
+#   groundhog status       — health check
+#
+# Runs as macOS LaunchAgent: com.dubsopenhub.groundhog
+
+set -euo pipefail
+
+REPO="$HOME/dev/copilot-skills"
+SKILLS="$HOME/.copilot/skills"
+LOG="$HOME/.groundhog.log"
+LOCKFILE="/tmp/groundhog.lock"
+DEBOUNCE_SECS=5
+MAX_LOG_BYTES=1048576  # 1MB
+
+# ── Logging ────────────────────────────────────────────────────────────────
+log() { echo "$(date): $*" >> "$LOG"; }
+
+rotate_log() {
+  if [[ -f "$LOG" ]]; then
+    local size
+    size=$(stat -f%z "$LOG" 2>/dev/null || echo 0)
+    if [[ "$size" -gt "$MAX_LOG_BYTES" ]]; then
+      mv "$LOG" "${LOG}.old"
+      log "log rotated (was ${size} bytes)"
+    fi
+  fi
+}
+
+# ── Repo health ────────────────────────────────────────────────────────────
+validate_repo() {
+  cd "$REPO" || { log "FATAL: repo dir $REPO missing"; return 1; }
+  git rev-parse --is-inside-work-tree >/dev/null 2>&1 || { log "FATAL: not a git repo"; return 1; }
+  if [[ -d .git/rebase-merge ]] || [[ -d .git/rebase-apply ]]; then
+    log "FATAL: repo in rebase state — manual fix needed"; return 1
+  fi
+  if ! git diff --quiet 2>/dev/null; then
+    log "WARN: dirty working tree, resetting"
+    git checkout -- . 2>>"$LOG"
+  fi
+  return 0
+}
+
+validate_skills() {
+  [[ -d "$SKILLS" ]] || { log "ERROR: skills dir $SKILLS missing"; return 1; }
+  local count
+  count=$(find "$SKILLS" -name 'SKILL.md' 2>/dev/null | wc -l | tr -d ' ')
+  [[ "$count" -gt 0 ]] || { log "WARN: no skills found, skipping sync"; return 1; }
+  return 0
+}
+
+# ── Push with retry ────────────────────────────────────────────────────────
+push_with_retry() {
+  local attempts=3
+  for i in $(seq 1 $attempts); do
+    git push >>"$LOG" 2>&1 && return 0
+    log "push attempt $i/$attempts failed"
+    sleep $((2 ** i))
+  done
+  osascript -e 'display notification "Git push failed after 3 attempts" with title "🐿️ Groundhog Day"' 2>/dev/null || true
+  return 1
+}
+
+# ── Sync lock ──────────────────────────────────────────────────────────────
+acquire_lock() { mkdir "$LOCKFILE" 2>/dev/null; }
+release_lock() { rmdir "$LOCKFILE" 2>/dev/null || true; }
+
+# ── Core sync ──────────────────────────────────────────────────────────────
+do_sync() {
+  rotate_log
+  validate_skills || return 0
+  validate_repo || return 1
+
+  cd "$REPO" || return 1
+
+  rsync -a --delete \
+    --exclude='.git' --exclude='README.md' \
+    --exclude='.DS_Store' --exclude='__pycache__' \
+    --exclude='node_modules' --exclude='.env' \
+    "$SKILLS"/ "$REPO"/ 2>>"$LOG"
+
+  generate_readme
+
+  git add -A
+  if ! git diff --cached --quiet; then
+    local msg="sync skills $(date +%Y-%m-%d-%H%M)"
+
+    local new_skills
+    new_skills=$(git diff --cached --name-only --diff-filter=A | grep 'SKILL.md' | sed 's|/SKILL.md||' | sort -u || true)
+    if [ -n "$new_skills" ]; then
+      msg="add skill: $(echo "$new_skills" | tr '\n' ', ' | sed 's/,$//')"
+    fi
+
+    git pull --rebase --quiet >>"$LOG" 2>&1 || {
+      log "ERROR: pull --rebase failed, manual fix needed"
+      return 1
+    }
+
+    git commit -m "$msg" >>"$LOG" 2>&1
+    push_with_retry
+    log "🐿️  synced — $msg"
+    echo "🐿️  Groundhog Day synced: $msg"
+  fi
+}
+
+do_sync_locked() {
+  if ! acquire_lock; then
+    return 0
+  fi
+  trap 'release_lock' RETURN
+  do_sync
+}
+
+# ── README generation ──────────────────────────────────────────────────────
+generate_readme() {
+  cd "$REPO" || return
+
+  cat > README.md << 'HEADER'
+# Copilot CLI Skills
+
+A collection of skills for [GitHub Copilot CLI](https://docs.github.com/copilot/concepts/agents/about-copilot-cli) that extend the agent with specialized workflows.
+
+## Skills
+
+| Skill | Description |
+|-------|-------------|
+HEADER
+
+  python3 - "$REPO" >> README.md 2>/dev/null << 'PYSCRIPT'
+import re, sys, os
+repo = sys.argv[1]
+for name in sorted(os.listdir(repo)):
+    sf = os.path.join(repo, name, "SKILL.md")
+    if not os.path.isfile(sf):
+        continue
+    text = open(sf).read()
+    m = re.search(r'description:\s*>\s*\n((?:\s+.*\n)*)', text)
+    if m:
+        desc = ' '.join(m.group(1).strip().split())
+    else:
+        m = re.search(r'description:\s*(.*)', text)
+        desc = m.group(1).strip().strip('"') if m else '\u2014'
+    if len(desc) > 120:
+        desc = desc[:117] + '...'
+    print(f'| [{name}]({name}/) | {desc} |')
+PYSCRIPT
+
+  cat >> README.md << 'FOOTER'
+
+## Install
+
+### Install all skills
+
+```bash
+git clone https://github.com/DUBSOpenHub/copilot-skills.git /tmp/copilot-skills
+cp -R /tmp/copilot-skills/*/ ~/.copilot/skills/
+```
+
+### Install a single skill
+
+```bash
+git clone --depth 1 https://github.com/DUBSOpenHub/copilot-skills.git /tmp/copilot-skills
+cp -R /tmp/copilot-skills/pitch-master ~/.copilot/skills/
+```
+
+After installing, restart your Copilot CLI session (`/exit` then `copilot`) to pick up the new skills. Use `/skills` to verify they loaded.
+
+## How skills work
+
+Each skill is a folder containing a `SKILL.md` file with YAML frontmatter (name, description) and markdown prompt instructions. Copilot CLI loads skills from `~/.copilot/skills/` on startup.
+
+## License
+
+MIT
+FOOTER
+}
+
+# ── Watch mode ─────────────────────────────────────────────────────────────
+watch_mode() {
+  trap 'log "🐿️  shutting down"; kill 0; exit 0' SIGTERM SIGINT
+
+  echo "🐿️  Groundhog Day is watching... same thing, every time."
+  log "🐿️  watcher started (PID $$)"
+
+  fswatch -r -l "$DEBOUNCE_SECS" \
+    --event Created --event Updated --event Removed --event Renamed \
+    "$SKILLS" | while read -r event; do
+      while read -r -t 0.1 _extra; do :; done
+      log "🐿️  change detected"
+      do_sync_locked
+    done
+}
+
+# ── Status ─────────────────────────────────────────────────────────────────
+cmd_status() {
+  if launchctl list 2>/dev/null | grep -q groundhog; then
+    echo "🐿️  Groundhog Day: ✅ Running"
+  else
+    echo "🐿️  Groundhog Day: ❌ Not running"
+  fi
+  echo ""
+  if [[ -f "$LOG" ]]; then
+    echo "Last 5 log entries:"
+    tail -5 "$LOG"
+  else
+    echo "No log file found."
+  fi
+}
+
+# ── Main ───────────────────────────────────────────────────────────────────
+case "${1:-}" in
+  watch)  watch_mode ;;
+  status) cmd_status ;;
+  *)      do_sync_locked ;;
+esac
