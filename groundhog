@@ -214,9 +214,146 @@ cmd_status() {
   fi
 }
 
+# ── Nightly checkup ───────────────────────────────────────────────────────
+cmd_checkup() {
+  local issues=0
+  local report=""
+  local CHECKUP_LOG="$HOME/.groundhog-checkup.log"
+
+  report+="🐿️  Groundhog Day — Nightly Checkup\n"
+  report+="$(date)\n"
+  report+="────────────────────────────────────\n\n"
+
+  # 1. Process health
+  if pgrep -f "groundhog watch" >/dev/null 2>&1; then
+    report+="✅ Watcher process: running\n"
+  else
+    report+="❌ Watcher process: NOT RUNNING\n"
+    issues=$((issues + 1))
+  fi
+
+  # 2. LaunchAgent registered
+  if launchctl list 2>/dev/null | grep -q "com.dubsopenhub.groundhog" 2>/dev/null; then
+    report+="✅ LaunchAgent: loaded\n"
+  elif pgrep -f "groundhog watch" >/dev/null 2>&1; then
+    report+="✅ LaunchAgent: running (manual)\n"
+  else
+    report+="❌ LaunchAgent: not loaded\n"
+    issues=$((issues + 1))
+  fi
+
+  # 3. Skills directory exists and has skills
+  if [[ -d "$SKILLS" ]]; then
+    local skill_count
+    skill_count=$(find "$SKILLS" -name 'SKILL.md' 2>/dev/null | wc -l | tr -d ' ')
+    report+="✅ Skills directory: $skill_count skills found\n"
+  else
+    report+="❌ Skills directory: MISSING ($SKILLS)\n"
+    issues=$((issues + 1))
+  fi
+
+  # 4. Repo state
+  if [[ -d "$REPO/.git" ]]; then
+    cd "$REPO"
+    if git diff --quiet 2>/dev/null && git diff --cached --quiet 2>/dev/null; then
+      report+="✅ Repo state: clean\n"
+    else
+      report+="⚠️  Repo state: dirty (uncommitted changes)\n"
+      issues=$((issues + 1))
+    fi
+
+    # Check if local is ahead of remote
+    git fetch --quiet 2>/dev/null || true
+    local ahead
+    ahead=$(git rev-list --count origin/main..HEAD 2>/dev/null || echo "0")
+    if [[ "$ahead" -gt 0 ]]; then
+      report+="⚠️  Unpushed commits: $ahead\n"
+      issues=$((issues + 1))
+    else
+      report+="✅ Remote: in sync\n"
+    fi
+
+    # Check for rebase state
+    if [[ -d .git/rebase-merge ]] || [[ -d .git/rebase-apply ]]; then
+      report+="❌ Repo: stuck in rebase\n"
+      issues=$((issues + 1))
+    fi
+  else
+    report+="❌ Repo: MISSING ($REPO)\n"
+    issues=$((issues + 1))
+  fi
+
+  # 5. Recent push failures
+  if [[ -f "$LOG" ]]; then
+    local recent_failures
+    recent_failures=$(grep -c "push.*failed\|ERROR\|FATAL" "$LOG" 2>/dev/null | tr -d '[:space:]' || echo "0")
+    recent_failures=${recent_failures:-0}
+    if [[ "$recent_failures" -gt 0 ]]; then
+      report+="⚠️  Log errors: $recent_failures found\n"
+      local last_error
+      last_error=$(grep "push.*failed\|ERROR\|FATAL" "$LOG" | tail -1)
+      report+="   Last: $last_error\n"
+      issues=$((issues + 1))
+    else
+      report+="✅ Log: no errors\n"
+    fi
+
+    # Log size
+    local log_size
+    log_size=$(stat -f%z "$LOG" 2>/dev/null || echo "0")
+    local log_kb=$((log_size / 1024))
+    report+="✅ Log size: ${log_kb}KB\n"
+
+    # Last sync time
+    local last_sync
+    last_sync=$(grep "synced" "$LOG" | tail -1 | cut -d: -f1-3)
+    if [[ -n "$last_sync" ]]; then
+      report+="✅ Last sync: $last_sync\n"
+    else
+      report+="⚠️  Last sync: never\n"
+      issues=$((issues + 1))
+    fi
+  else
+    report+="⚠️  Log file: not found\n"
+    issues=$((issues + 1))
+  fi
+
+  # 6. fswatch dependency
+  if command -v fswatch >/dev/null 2>&1; then
+    report+="✅ fswatch: installed\n"
+  else
+    report+="❌ fswatch: MISSING\n"
+    issues=$((issues + 1))
+  fi
+
+  report+="\n────────────────────────────────────\n"
+
+  if [[ "$issues" -eq 0 ]]; then
+    report+="🐿️  All clear. Groundhog Day is healthy.\n"
+  else
+    report+="🚨 $issues issue(s) found. Run grid-medic:\n"
+    report+="   → Open Copilot CLI and say:\n"
+    report+="     \"grid-medic diagnose ~/bin/groundhog\"\n"
+  fi
+
+  # Output
+  echo -e "$report"
+
+  # Save to checkup log
+  echo -e "$report" >> "$CHECKUP_LOG"
+
+  # macOS notification if issues found
+  if [[ "$issues" -gt 0 ]] && [[ "$(uname)" == "Darwin" ]]; then
+    osascript -e "display notification \"$issues issue(s) found. Run: groundhog checkup\" with title \"🐿️ Groundhog Day Checkup\"" 2>/dev/null || true
+  fi
+
+  exit 0
+}
+
 # ── Main ───────────────────────────────────────────────────────────────────
 case "${1:-}" in
-  watch)  watch_mode ;;
-  status) cmd_status ;;
-  *)      do_sync_locked ;;
+  watch)   watch_mode ;;
+  status)  cmd_status ;;
+  checkup) cmd_checkup ;;
+  *)       do_sync_locked ;;
 esac

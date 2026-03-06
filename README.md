@@ -113,15 +113,55 @@ groundhog status       # Health check — is it running? Last sync?
 
 ## Built-In Safety
 
-Groundhog Day was hardened by running it through a full agent X-ray and grid-medic analysis. It's not a quick script — it's production infrastructure:
+This isn't a quick script. Groundhog Day was stress-tested by two AI analysis agents before release:
 
-- 🔒 **Sync lock** — prevents overlapping syncs from corrupting git state
-- 🔄 **Push retry** — 3 attempts with exponential backoff; macOS notification on failure
-- 🛡️ **Empty source protection** — won't wipe your repo if the skills dir is empty
-- 🏥 **Repo health checks** — detects dirty state, rebase conflicts, missing dirs
-- 📋 **Log rotation** — auto-rotates at 1MB so logs don't eat your disk
-- 🧹 **Clean shutdown** — traps SIGTERM for graceful exit
-- 🐍 **No injection risk** — Python calls use argv, not shell interpolation
+🔬 **Agent X-Ray** performed a full security, reliability, and performance audit — identified 12 issues across 5 severity levels including a shell injection vector, race conditions, and data loss scenarios.
+
+🚑 **Grid-Medic** independently diagnosed the same codebase, applied 8 fixes, validated each one, and verified the agent restarted cleanly after patching.
+
+Every finding was fixed. Here's what's built in:
+
+| Protection | What it prevents |
+|-----------|-----------------|
+| 🔒 Sync lock | Overlapping syncs corrupting git state |
+| 🔄 Push retry (3x) | Network failures silently dropping commits |
+| 🛡️ Empty source guard | `rsync --delete` wiping your repo if skills dir is empty |
+| 🏥 Repo health check | Dirty state, rebase conflicts, or missing dirs breaking sync |
+| 📋 Log rotation | Unbounded log growth eating your disk over months |
+| 🧹 Graceful shutdown | Orphaned processes on SIGTERM |
+| 🐍 Injection protection | Shell interpolation in Python calls |
+| 🧲 Event drain | Redundant syncs from batched file events |
+
+## Nightly Checkup
+
+Groundhog Day runs an automated health check every morning at 6:00 AM. It checks 9 things:
+
+- Is the watcher process alive?
+- Is the LaunchAgent loaded?
+- Does the skills directory exist and have skills?
+- Is the repo clean?
+- Are all commits pushed?
+- Is the repo stuck in a rebase?
+- Any push failures or errors in the log?
+- Is the log file a reasonable size?
+- Is fswatch installed?
+
+If anything is wrong, you get a macOS notification. The checkup tells you exactly what to run:
+
+```
+🚨 1 issue(s) found. Run grid-medic:
+   → Open Copilot CLI and say:
+     "grid-medic diagnose ~/bin/groundhog"
+```
+
+You can also run it manually anytime:
+
+```bash
+groundhog checkup
+```
+
+> **Re-run Agent X-Ray** after modifying the script to catch new security or reliability issues:
+> Open Copilot CLI and say: *"X-ray ~/bin/groundhog for security, reliability, and performance"*
 
 ## Restore on a New Machine
 
