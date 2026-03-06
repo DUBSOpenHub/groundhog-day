@@ -190,7 +190,8 @@ watch_mode() {
   fswatch -r -l "$DEBOUNCE_SECS" \
     --event Created --event Updated --event Removed --event Renamed \
     "$SKILLS" | while read -r event; do
-      while read -r -t 0.1 _extra; do :; done
+      # Brief pause to let batched events settle
+      sleep 1
       log "🐿️  change detected"
       do_sync_locked
     done

@@ -6,6 +6,10 @@
 > ```bash
 > curl -fsSL https://raw.githubusercontent.com/DUBSOpenHub/groundhog-day/main/install.sh | bash
 > ```
+> Or with Homebrew:
+> ```bash
+> brew install DUBSOpenHub/tap/groundhog-day
+> ```
 
 ![Groundhog Day](https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExN2EzNW5wbnFjOHBiMWlrOWM2b21zMXU2eHYwM2p6cmU0Znl5ZWJyeiZlcD12MV9naWZzX3NlYXJjaCZjdD1n/3o7WIQ4FARJdpmUni8/giphy.gif)
 
@@ -33,7 +37,41 @@ The installer handles everything: detects your skills, creates a backup repo on 
 
 ---
 
-## ⚡ Quick Install
+## 🐿️ Quick Install
+
+> ⚡ **Install in one line:**
+> ```bash
+> curl -fsSL https://raw.githubusercontent.com/DUBSOpenHub/groundhog-day/main/install.sh | bash
+> ```
+
+### 🐿️ See it in action
+
+```
+$ groundhog status
+🐿️  Groundhog Day: ✅ Running
+
+$ mkdir -p ~/.copilot/skills/my-new-skill
+$ cat > ~/.copilot/skills/my-new-skill/SKILL.md << EOF
+---
+name: my-new-skill
+description: A brand new skill I just created
+---
+EOF
+
+  ... 5 seconds later ...
+
+$ tail -1 ~/.groundhog.log
+🐿️  synced — add skill: my-new-skill
+
+$ groundhog checkup
+🐿️  Groundhog Day — Nightly Checkup
+✅ Watcher process: running
+✅ Skills directory: 10 skills found
+✅ Repo state: clean
+✅ Remote: in sync
+✅ Log: no errors
+🐿️  All clear. Groundhog Day is healthy.
+```
 
 ```bash
 # 1. Clone
