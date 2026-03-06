@@ -63,12 +63,15 @@ That's it. Every skill you create, edit, or delete from this moment forward is a
 
 ## What It Does
 
+![Reporting in](https://media.giphy.com/media/j8sVwJid3NdjG/giphy.gif)
+
 Groundhog Day is a background agent that watches your `~/.copilot/skills/` directory in real time. The moment a file changes, it:
 
-1. **Syncs** — rsyncs your skills to a local git repo
-2. **Commits** — creates a meaningful commit (detects new skills by name)
-3. **Pushes** — sends it to GitHub with retry logic
-4. **Regenerates** — auto-updates the README with a skill catalog table
+1. **Watches** — detects every create, edit, rename, and delete in real time
+2. **Syncs** — rsyncs your skills to a version-controlled git repo
+3. **Commits** — creates meaningful commits (detects new skills by name)
+4. **Pushes** — sends it to GitHub with automatic retry on failure
+5. **Catalogs** — auto-generates a README with a table of all your skills
 
 No cron. No manual steps. No remembering. It just runs.
 
