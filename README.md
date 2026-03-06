@@ -170,7 +170,7 @@ Every finding was fixed. Here's what's built in:
 | 🐍 Injection protection | Shell interpolation in Python calls |
 | 🧲 Event drain | Redundant syncs from batched file events |
 
-## 🐿️ Daily Checkup
+## 🐿️ Daily Checkup - Every day is the same
 
 ![6:00 AM](https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExdmRkdG16dW5mbnplc3RycmRzd256bDk4eGIxMHh5b21uNWoyN3BkeiZlcD12MV9naWZzX3NlYXJjaCZjdD1n/U6vdotF6Hga2zdAtqf/giphy.gif)
 
