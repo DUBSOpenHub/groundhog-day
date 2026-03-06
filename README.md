@@ -172,6 +172,8 @@ Every finding was fixed. Here's what's built in:
 
 ## 🐿️ Nightly Checkup
 
+![6:00 AM](https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExdmRkdG16dW5mbnplc3RycmRzd256bDk4eGIxMHh5b21uNWoyN3BkeiZlcD12MV9naWZzX3NlYXJjaCZjdD1n/U6vdotF6Hga2zdAtqf/giphy.gif)
+
 Groundhog Day runs an automated health check every morning at 6:00 AM. It checks 9 things:
 
 - Is the watcher process alive?
