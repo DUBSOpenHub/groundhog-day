@@ -115,9 +115,9 @@ groundhog status       # Health check — is it running? Last sync?
 
 This isn't a quick script. Groundhog Day was stress-tested by two AI analysis agents before release:
 
-🔬 **Agent X-Ray** performed a full security, reliability, and performance audit — identified 12 issues across 5 severity levels including a shell injection vector, race conditions, and data loss scenarios.
+🔬 **[Agent X-Ray](https://github.com/DUBSOpenHub/agent-xray)** performed a full security, reliability, and performance audit — identified 12 issues across 5 severity levels including a shell injection vector, race conditions, and data loss scenarios.
 
-🚑 **Grid-Medic** independently diagnosed the same codebase, applied 8 fixes, validated each one, and verified the agent restarted cleanly after patching.
+🚑 **[Grid-Medic](https://github.com/DUBSOpenHub/ai-agent-catalog#grid-medic)** independently diagnosed the same codebase, applied 8 fixes, validated each one, and verified the agent restarted cleanly after patching.
 
 Every finding was fixed. Here's what's built in:
 
