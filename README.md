@@ -21,9 +21,9 @@ Did you know that every [Copilot CLI](https://docs.github.com/copilot/concepts/a
 ~/.copilot/skills/
 ```
 
-That's it. No cloud sync. No version history. No backup.
+That's it. No version history. No sync. No restore path.
 
-Your custom agents. Your workflow automations. The prompts you spent weeks iterating on to get just right. All sitting in a single directory on a single machine. One spilled coffee, one failed drive, one stolen laptop and it's all...
+Your custom skills. Your workflow automations. The prompts you spent weeks iterating on to get just right. All sitting in a single directory on a single machine. One spilled coffee, one failed drive, one stolen laptop and it's all...
 
 **...gone.** 💀
 
