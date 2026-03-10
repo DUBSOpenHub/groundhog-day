@@ -96,12 +96,13 @@ do_sync() {
       msg="add skill: $(echo "$new_skills" | tr '\n' ', ' | sed 's/,$//')"
     fi
 
+    git commit -m "$msg" >>"$LOG" 2>&1
+
     git pull --rebase --quiet >>"$LOG" 2>&1 || {
       log "ERROR: pull --rebase failed, manual fix needed"
       return 1
     }
 
-    git commit -m "$msg" >>"$LOG" 2>&1
     push_with_retry
     log "🐿️  synced — $msg"
     echo "🐿️  Groundhog Day synced: $msg"
