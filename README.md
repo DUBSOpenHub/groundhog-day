@@ -118,8 +118,8 @@ No cron. No manual steps. No remembering. It just runs.
 | Scenario | Without Groundhog Day | With Groundhog Day |
 |----------|----------------------|---------------------|
 | Laptop dies | 💀 Skills gone forever | ✅ `git clone` on new machine |
-| Accidentally delete a skill | 💀 Hope you remember what it said | ✅ `git revert` |
-| Want to share a skill | 💀 Copy-paste from terminal | ✅ Send a repo link |
+| Accidentally delete a skill | 💀 Hope you remember what it said | ✅ `git restore` |
+| Want to share a skill | 💀 Manually copy files around | ✅ Send a repo link |
 | New machine setup | 💀 Rebuild everything from scratch | ✅ One clone, done |
 | "Wait, what did that skill look like last week?" | 💀 No idea | ✅ `git log -p` |
 
