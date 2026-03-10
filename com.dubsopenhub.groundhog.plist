@@ -15,8 +15,6 @@
     <true/>
     <key>StandardOutPath</key>
     <string>/Users/greggcochran/.groundhog.log</string>
-    <key>StandardOutPath</key>
-    <string>/Users/greggcochran/.groundhog.log</string>
     <key>StandardErrorPath</key>
     <string>/Users/greggcochran/.groundhog.log</string>
     <key>EnvironmentVariables</key>

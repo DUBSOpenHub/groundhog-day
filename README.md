@@ -174,7 +174,7 @@ Every finding was fixed. Here's what's built in:
 
 ![6:00 AM](https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExdmRkdG16dW5mbnplc3RycmRzd256bDk4eGIxMHh5b21uNWoyN3BkeiZlcD12MV9naWZzX3NlYXJjaCZjdD1n/U6vdotF6Hga2zdAtqf/giphy.gif)
 
-Groundhog Day runs an automated health check every morning at 6:00 AM. It checks 9 things:
+Groundhog Day runs an automated health check every morning at 6:00 AM. It checks 10 things:
 
 - Is the watcher process alive?
 - Is the LaunchAgent loaded?
@@ -183,7 +183,8 @@ Groundhog Day runs an automated health check every morning at 6:00 AM. It checks
 - Are all commits pushed?
 - Is the repo stuck in a rebase?
 - Any push failures or errors in the log?
-- Is the log file a reasonable size?
+- Log file size (reported for awareness)
+- When was the last successful sync?
 - Is fswatch installed?
 
 If anything is wrong, you get a macOS notification. The checkup tells you exactly what to run:
@@ -224,7 +225,7 @@ A: The script works everywhere. The LaunchAgent plist is macOS-specific. On Linu
 A: Changes are committed locally. The next time you're online, the push retry catches up.
 
 **Q: Will it push secrets?**
-A: Skills are prompt files (markdown). But `.env` and `.gitignore`'d files are excluded by default.
+A: Skills are prompt files (markdown). The sync explicitly excludes `.env`, `.DS_Store`, `node_modules`, and `__pycache__`. Add a `.gitignore` to your skills backup repo for anything else you want excluded.
 
 **Q: Can multiple people share a skills repo?**
 A: Yes. Groundhog Day runs `git pull --rebase` before pushing, so it handles concurrent updates.
