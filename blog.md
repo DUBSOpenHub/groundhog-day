@@ -77,7 +77,7 @@ Agents auditing agent code. It's a useful pattern. The code that protects your w
 
 ## Nightly health check
 
-Groundhog Day also runs an automated checkup every morning at 6 AM. It verifies 10 things: Is the watcher alive? Is the LaunchAgent loaded? Are there skills to protect? Is the repo clean? Are all commits pushed? Any rebase conflicts? Push failures in the log? Log file size? When was the last successful sync? Is `fswatch` still installed?
+Groundhog Day also runs an automated checkup every morning at 6 AM. It verifies 11 things: Is the watcher alive? Is the LaunchAgent loaded? Are there skills to protect? Is the repo clean? Are all commits pushed? Any rebase conflicts? Push failures in the log? Log file size? When was the last successful sync? Is `fswatch` still installed? Is a stale sync lock blocking syncs?
 
 If anything fails, you get a macOS notification telling you exactly what's wrong and how to fix it:
 

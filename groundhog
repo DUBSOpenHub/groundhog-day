@@ -111,7 +111,16 @@ do_sync() {
 
 do_sync_locked() {
   if ! acquire_lock; then
-    return 0
+    # Clear stale locks older than 5 minutes
+    local lock_age
+    lock_age=$(( $(date +%s) - $(stat -f%m "$LOCKFILE" 2>/dev/null || echo "0") ))
+    if [[ "$lock_age" -gt 300 ]]; then
+      log "WARN: clearing stale lock (${lock_age}s old)"
+      release_lock
+      acquire_lock || return 0
+    else
+      return 0
+    fi
   fi
   trap 'release_lock' RETURN
   do_sync
@@ -326,6 +335,21 @@ cmd_checkup() {
   else
     report+="❌ fswatch: MISSING\n"
     issues=$((issues + 1))
+  fi
+
+  # 7. Stale lock file
+  if [[ -d "$LOCKFILE" ]]; then
+    local lock_age
+    lock_age=$(( $(date +%s) - $(stat -f%m "$LOCKFILE" 2>/dev/null || echo "0") ))
+    if [[ "$lock_age" -gt 300 ]]; then
+      report+="⚠️  Stale lock: $LOCKFILE (${lock_age}s old, removing)\n"
+      rmdir "$LOCKFILE" 2>/dev/null || true
+      issues=$((issues + 1))
+    else
+      report+="✅ Sync lock: active (${lock_age}s old)\n"
+    fi
+  else
+    report+="✅ Sync lock: clear\n"
   fi
 
   report+="\n────────────────────────────────────\n"
