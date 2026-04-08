@@ -298,20 +298,19 @@ cmd_checkup() {
   # 5. Recent push failures (last 7 days only)
   if [[ -f "$LOG" ]]; then
     local recent_failures=0
-    local cutoff_date
-    cutoff_date=$(date -v-7d +%Y-%m-%d 2>/dev/null || date -d '7 days ago' +%Y-%m-%d 2>/dev/null || echo "")
-    if [[ -n "$cutoff_date" ]]; then
-      recent_failures=$(awk -v cutoff="$cutoff_date" '
-        /push.*failed|ERROR|FATAL/ {
-          # extract date from log line (format: "Day Mon DD HH:MM:SS ...")
-          if ($0 >= cutoff) count++
-        }
-        END { print count+0 }
-      ' "$LOG" 2>/dev/null || echo "0")
-    else
-      recent_failures=$(grep -c "push.*failed\|ERROR\|FATAL" "$LOG" 2>/dev/null | tr -d '[:space:]' || echo "0")
-    fi
-    recent_failures=${recent_failures:-0}
+    local cutoff_epoch
+    cutoff_epoch=$(date -v-7d +%s 2>/dev/null || date -d '7 days ago' +%s 2>/dev/null || echo "0")
+    local line
+    while IFS= read -r line; do
+      # Log format: "Wed Mar 11 19:13:33 PDT 2026: ..."
+      local line_date
+      line_date=$(echo "$line" | sed 's/: .*//' | head -1)
+      local line_epoch
+      line_epoch=$(date -j -f "%a %b %d %T %Z %Y" "$line_date" +%s 2>/dev/null || echo "0")
+      if [[ "$line_epoch" -ge "$cutoff_epoch" ]]; then
+        recent_failures=$((recent_failures + 1))
+      fi
+    done < <(grep "push.*failed\|ERROR\|FATAL" "$LOG" 2>/dev/null || true)
     if [[ "$recent_failures" -gt 0 ]]; then
       report+="⚠️  Log errors (7d): $recent_failures found\n"
       local last_error
@@ -350,14 +349,11 @@ cmd_checkup() {
     issues=$((issues + 1))
   fi
 
-  # 7. Copilot CLI update
+  # 7. Copilot CLI check
   if command -v copilot >/dev/null 2>&1; then
-    if copilot /update >>"$LOG" 2>&1; then
-      report+="✅ Copilot CLI: updated\n"
-    else
-      report+="⚠️  Copilot CLI: update failed\n"
-      issues=$((issues + 1))
-    fi
+    local cli_version
+    cli_version=$(copilot --version 2>/dev/null | head -1 || echo "unknown")
+    report+="✅ Copilot CLI: installed ($cli_version)\n"
   else
     report+="⚠️  Copilot CLI: not installed\n"
     issues=$((issues + 1))
