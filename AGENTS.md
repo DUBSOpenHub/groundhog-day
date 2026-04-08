@@ -12,7 +12,7 @@ Groundhog Day is a **standalone bash daemon** that watches `~/.copilot/skills/` 
 ~/bin/groundhog                          ← main script (bash)
 ├── watch mode (fswatch → rsync → git)   ← real-time file watcher
 ├── sync (rsync + git add/commit/push)   ← core sync logic
-├── checkup (9-point diagnostic)         ← nightly health check
+├── checkup (13-point diagnostic)        ← daily health check at 6 AM
 └── status (quick health check)          ← manual status
 
 ~/Library/LaunchAgents/

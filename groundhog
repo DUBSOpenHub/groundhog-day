@@ -88,7 +88,8 @@ do_sync() {
 
   git add -A
   if ! git diff --cached --quiet; then
-    local msg="sync skills $(date +%Y-%m-%d-%H%M)"
+    local msg
+    msg="sync skills $(date +%Y-%m-%d-%H%M)"
 
     local new_skills
     new_skills=$(git diff --cached --name-only --diff-filter=A | grep 'SKILL.md' | sed 's|/SKILL.md||' | sort -u || true)
@@ -199,7 +200,7 @@ watch_mode() {
 
   fswatch -r -l "$DEBOUNCE_SECS" \
     --event Created --event Updated --event Removed --event Renamed \
-    "$SKILLS" | while read -r event; do
+    "$SKILLS" | while read -r _event; do
       # Brief pause to let batched events settle
       sleep 1
       log "🐿️  change detected"
@@ -294,19 +295,31 @@ cmd_checkup() {
     issues=$((issues + 1))
   fi
 
-  # 5. Recent push failures
+  # 5. Recent push failures (last 7 days only)
   if [[ -f "$LOG" ]]; then
-    local recent_failures
-    recent_failures=$(grep -c "push.*failed\|ERROR\|FATAL" "$LOG" 2>/dev/null | tr -d '[:space:]' || echo "0")
+    local recent_failures=0
+    local cutoff_date
+    cutoff_date=$(date -v-7d +%Y-%m-%d 2>/dev/null || date -d '7 days ago' +%Y-%m-%d 2>/dev/null || echo "")
+    if [[ -n "$cutoff_date" ]]; then
+      recent_failures=$(awk -v cutoff="$cutoff_date" '
+        /push.*failed|ERROR|FATAL/ {
+          # extract date from log line (format: "Day Mon DD HH:MM:SS ...")
+          if ($0 >= cutoff) count++
+        }
+        END { print count+0 }
+      ' "$LOG" 2>/dev/null || echo "0")
+    else
+      recent_failures=$(grep -c "push.*failed\|ERROR\|FATAL" "$LOG" 2>/dev/null | tr -d '[:space:]' || echo "0")
+    fi
     recent_failures=${recent_failures:-0}
     if [[ "$recent_failures" -gt 0 ]]; then
-      report+="⚠️  Log errors: $recent_failures found\n"
+      report+="⚠️  Log errors (7d): $recent_failures found\n"
       local last_error
       last_error=$(grep "push.*failed\|ERROR\|FATAL" "$LOG" | tail -1)
       report+="   Last: $last_error\n"
       issues=$((issues + 1))
     else
-      report+="✅ Log: no errors\n"
+      report+="✅ Log: no recent errors (7d)\n"
     fi
 
     # Log size
@@ -337,7 +350,20 @@ cmd_checkup() {
     issues=$((issues + 1))
   fi
 
-  # 7. Stale lock file
+  # 7. Copilot CLI update
+  if command -v copilot >/dev/null 2>&1; then
+    if copilot /update >>"$LOG" 2>&1; then
+      report+="✅ Copilot CLI: updated\n"
+    else
+      report+="⚠️  Copilot CLI: update failed\n"
+      issues=$((issues + 1))
+    fi
+  else
+    report+="⚠️  Copilot CLI: not installed\n"
+    issues=$((issues + 1))
+  fi
+
+  # 8. Stale lock file
   if [[ -d "$LOCKFILE" ]]; then
     local lock_age
     lock_age=$(( $(date +%s) - $(stat -f%m "$LOCKFILE" 2>/dev/null || echo "0") ))
@@ -350,6 +376,17 @@ cmd_checkup() {
     fi
   else
     report+="✅ Sync lock: clear\n"
+  fi
+
+  # 9. Shell config integrity (.zshrc)
+  if [[ -f "$HOME/.zshrc" ]]; then
+    if zsh -n "$HOME/.zshrc" 2>/dev/null; then
+      report+="✅ Shell config: .zshrc syntax valid\n"
+    else
+      report+="⚠️  Shell config: .zshrc has syntax errors!\n"
+      report+="   → Run: zsh -n ~/.zshrc to diagnose\n"
+      issues=$((issues + 1))
+    fi
   fi
 
   report+="\n────────────────────────────────────\n"

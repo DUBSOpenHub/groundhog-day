@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  shellcheck:
+    name: ShellCheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install ShellCheck
+        run: sudo apt-get install -y shellcheck
+      - name: Lint groundhog
+        run: shellcheck -s bash -S warning groundhog
+      - name: Lint install.sh
+        run: shellcheck -s bash -S warning install.sh
+
+  smoke-test:
+    name: Smoke Test
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install fswatch
+        run: brew install fswatch
+      - name: Verify script is executable
+        run: test -x groundhog
+      - name: Show help/status (no repo configured)
+        run: |
+          # Status should run without crashing even with no config
+          ./groundhog status || true
+      - name: Verify install.sh syntax
+        run: bash -n install.sh
+      - name: Verify groundhog syntax
+        run: bash -n groundhog

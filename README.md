@@ -174,7 +174,7 @@ Every finding was fixed. Here's what's built in:
 
 ![6:00 AM](https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExdmRkdG16dW5mbnplc3RycmRzd256bDk4eGIxMHh5b21uNWoyN3BkeiZlcD12MV9naWZzX3NlYXJjaCZjdD1n/U6vdotF6Hga2zdAtqf/giphy.gif)
 
-Groundhog Day runs an automated health check every morning at 6:00 AM. It checks 11 things:
+Groundhog Day runs an automated health check every morning at 6:00 AM. It checks 13 things:
 
 - Is the watcher process alive?
 - Is the LaunchAgent loaded?
@@ -182,11 +182,13 @@ Groundhog Day runs an automated health check every morning at 6:00 AM. It checks
 - Is the repo clean?
 - Are all commits pushed?
 - Is the repo stuck in a rebase?
-- Any push failures or errors in the log?
+- Any push failures or errors in the last 7 days?
 - Log file size (reported for awareness)
 - When was the last successful sync?
 - Is fswatch installed?
+- Is Copilot CLI up to date?
 - Is a stale sync lock blocking syncs?
+- Is `.zshrc` syntax valid?
 
 If anything is wrong, you get a macOS notification. The checkup tells you exactly what to run:
 
