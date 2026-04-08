@@ -1,8 +1,9 @@
 class GroundhogDay < Formula
   desc "🐿️ Autonomous backup agent for Copilot CLI skills"
   homepage "https://github.com/DUBSOpenHub/groundhog-day"
-  url "https://github.com/DUBSOpenHub/groundhog-day/archive/refs/tags/v1.0.0.tar.gz"
-  version "1.0.0"
+  url "https://github.com/DUBSOpenHub/groundhog-day/archive/refs/tags/v1.1.0.tar.gz"
+  version "1.1.0"
+  sha256 "4dbbcecb9679c43abfd3a828f97b214e600dddf13b06120971338a4799eb6dcf"
   license "MIT"
 
   depends_on "fswatch"
