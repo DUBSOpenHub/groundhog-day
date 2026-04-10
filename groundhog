@@ -385,6 +385,11 @@ cmd_checkup() {
     fi
   fi
 
+  # 10. Daily sync — ensure skills are backed up even if fswatch missed changes
+  log "🐿️  daily sync triggered by checkup"
+  do_sync_locked
+  report+="✅ Daily sync: completed\n"
+
   report+="\n────────────────────────────────────\n"
 
   if [[ "$issues" -eq 0 ]]; then
