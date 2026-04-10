@@ -14,7 +14,7 @@ jobs:
     name: ShellCheck
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
       - name: Install ShellCheck
         run: sudo apt-get install -y shellcheck
       - name: Lint groundhog
@@ -26,7 +26,7 @@ jobs:
     name: Smoke Test
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
       - name: Install fswatch
         run: brew install fswatch
       - name: Verify script is executable
